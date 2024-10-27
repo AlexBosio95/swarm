@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Customer Service Agents</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <div class="container">
+      <div class="swarm-banner">
+        <span>Powered by OpenAI Swarm Framework</span>
+      </div>
+      <div class="chat-container">
+        <div class="chat-header">
+          <span>Chatting with</span>
+          <span class="agent-status">{{ session['current_agent'] }}</span>
+        </div>
+        <div class="chat-body">
+          {% for message in chat_history %}
+            <div class="message {{ 'user-message' if message.role == 'user' else 'agent-response' }}">
+              {{ message.content }}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="chat-input">
+          <form method="post">
+            <input type="text" id="user_input" name="user_input" placeholder="Type your message here..." autocomplete="off" />
+            <button type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Scroll automatico all'ultimo messaggio
+      function scrollToBottom() {
+        const chatBody = document.querySelector('.chat-body');
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      // Richiama la funzione scroll ogni volta che si aggiunge un messaggio
+      window.onload = scrollToBottom;
+      document.querySelector('form').addEventListener('submit', () => {
+        setTimeout(scrollToBottom, 100); // Ritardo per garantire che il nuovo messaggio venga aggiunto
+      });
+
+      // Invio del messaggio tramite tasto Enter
+      document.getElementById('user_input').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+          event.preventDefault(); // Previene il comportamento di default dell'Enter
+          document.querySelector('form').submit(); // Simula l'invio del modulo
+        }
+      });
+
+      // Evidenziazione quando l'agente cambia
+      function highlightAgentChange() {
+        const agentStatusElement = document.querySelector('.agent-status');
+        agentStatusElement.classList.add('agent-highlight');
+        setTimeout(() => {
+          agentStatusElement.classList.remove('agent-highlight');
+        }, 1500); // Rimuove l'evidenziazione dopo 1.5 secondi
+      }
+
+      // Richiama la funzione quando l'agente cambia
+      if (sessionStorage.getItem('lastAgent') !== '{{ session["current_agent"] }}') {
+        highlightAgentChange();
+        sessionStorage.setItem('lastAgent', '{{ session["current_agent"] }}');
+      }
+    </script>
+  </body>
+</html>
